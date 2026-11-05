@@ -2,7 +2,6 @@ import speech_recognition as sr
 import time
 import os
 import webbrowser
-import pyautogui
 import pygame
 import datetime
 import pyttsx3
