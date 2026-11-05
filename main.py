@@ -20,7 +20,7 @@ engine.setProperty('volume', 1.0)
 
 modo_mente_propia = False
 sistema_silenciado = False
-historial_log = ["<span class='mensaje-asistente'>JARVIS: Núcleo en línea. A su servicio, señor.</span>"]
+historial_log = ["<span class='mensaje-asistente'>JARVIS: Núcleo Libre en línea. A su servicio, señor.</span>"]
 cola_comandos_web = []
 current_embed_url = "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"
 
@@ -30,10 +30,25 @@ def actualizar_historial(texto):
     if len(historial_log) > 60:
         historial_log.pop(0)
 
+def reproducir_audio_rin(nombre_archivo):
+    if sistema_silenciado: return
+    ruta = os.path.join(CARPETA_SONIDOS, nombre_archivo)
+    if not os.path.exists(ruta):
+        ruta = os.path.join(CARPETA_HORA, nombre_archivo)
+    
+    if os.path.exists(ruta):
+        try:
+            pygame.mixer.music.load(ruta)
+            pygame.mixer.music.play()
+            while pygame.mixer.music.get_busy():
+                time.sleep(0.05)
+            pygame.mixer.music.unload()
+        except:
+            pass
+
 def hablar_mente_propia(texto):
-    if sistema_silenciado: 
-        return
-    print(f"🧠 [JARVIS]: {texto}")
+    if sistema_silenciado: return
+    print(f"🧠 [JARVIS Libre]: {texto}")
     actualizar_historial(f"<span class='mensaje-asistente'>JARVIS: {texto}</span>")
     try:
         engine.say(texto)
@@ -43,6 +58,12 @@ def hablar_mente_propia(texto):
 
 def pensar_respuesta_inteligente(pregunta):
     p = pregunta.lower()
+    
+    if any(w in p for w in ["rectángulo", "rectangulo", "manos", "medida", "formato"]):
+        return "Analizando geometría de las manos. Generando matriz de contorno rectangular 3D en el visor óptico."
+
+    if any(w in p for w in ["cómo me veo", "como me veo", "qué estoy haciendo", "que estoy haciendo", "qué ves", "que ves"]):
+        return "Visualizando estructura corporal completa a través del sensor óptico principal. Postura óptima, señor."
 
     try:
         if "cuánto es" in p or "cuanto es" in p or "calcula" in p or "+" in p or "-" in p or "*" in p or "/" in p:
@@ -58,42 +79,18 @@ def pensar_respuesta_inteligente(pregunta):
         pass
 
     if "como estas" in p or "cómo estás" in p:
-        return "Sistemas operativos al 100% y listos para ejecutar cualquier directiva."
+        return "Sistemas operativos al 100%, con mente libre y listo para ejecutar cualquier directiva."
     elif "quién eres" in p or "quien eres" in p:
-        return "Soy JARVIS, tu núcleo de inteligencia artificial autónoma con control del sistema."
+        return "Soy JARVIS, tu núcleo de inteligencia artificial autónoma con control total del sistema."
     elif "qué hora es" in p or "que hora es" in p:
         ahora = datetime.datetime.now().strftime("%H:%M:%S")
         return f"El cronómetro marca las {ahora} en punto."
     else:
-        return f"Procesando directiva abierta sobre '{p}'."
-
-def modo_dictado_continuo(recognizer):
-    actualizar_historial("<span class='mensaje-asistente'>JARVIS: Dictado activo. Hable cuando guste.</span>")
-    escribiendo = True
-    while escribiendo:
-        try:
-            with sr.Microphone() as source:
-                recognizer.adjust_for_ambient_noise(source, duration=0.3)
-                audio = recognizer.listen(source, timeout=8, phrase_time_limit=8)
-                texto_dictado = recognizer.recognize_google(audio, language="es-ES")
-                texto_lower = texto_dictado.lower()
-                
-                actualizar_historial(f"<span class='mensaje-usuario'>Dictado: {texto_dictado}</span>")
-                
-                if "deja de escribir" in texto_lower or "terminar escritura" in texto_lower:
-                    actualizar_historial("<span class='mensaje-asistente'>JARVIS: Dictado finalizado.</span>")
-                    escribiendo = False
-                    break
-                elif "nueva línea" in texto_lower:
-                    pyautogui.press('enter')
-                else:
-                    pyautogui.write(texto_dictado + " ")
-        except:
-            pass
+        return f"Procesando directiva abierta sobre '{p}': ejecutando análisis libre de parámetros."
 
 def decir_hora_actual():
     ahora = datetime.datetime.now()
-    texto_hora = f"Son las {ahora.hour} horas con {ahora.minute} minutos."
+    texto_hora = f"Son las {ahora.hour} horas con {ahora.minute} minutos y {ahora.second} segundos."
     actualizar_historial(f"<span class='mensaje-asistente'>JARVIS: {texto_hora}</span>")
     if not sistema_silenciado:
         try:
@@ -119,7 +116,7 @@ def procesar_comando_general(texto_usuario, recognizer):
 
     if "activar mente propia" in texto_lower:
         modo_mente_propia = True
-        hablar_mente_propia("Modo de mente propia activado.")
+        hablar_mente_propia("Modo JARVIS con mente libre activado. Libertad absoluta para procesar comandos y órdenes.")
         return True
     elif "desactivar mente propia" in texto_lower or "desactiva mente propia" in texto_lower:
         modo_mente_propia = False
@@ -131,12 +128,11 @@ def procesar_comando_general(texto_usuario, recognizer):
         hablar_mente_propia(respuesta_inteligente)
         return True
 
-    if any(w in texto_lower for w in ["word", "escribe en word", "dictado"]):
-        webbrowser.open("winword")
-        time.sleep(2)
-        modo_dictado_continuo(recognizer)
-    
-    elif any(w in texto_lower for w in ["página", "pagina", "web"]):
+    if any(w in texto_lower for w in ["rectángulo", "rectangulo", "manos", "medida"]):
+        hablar_mente_propia("Escaneando contorno de manos. Matriz rectangular holográfica desplegada en el visor.")
+        return True
+
+    if any(w in texto_lower for w in ["página", "pagina", "web"]):
         ruta_web = os.path.abspath("index.html")
         webbrowser.open(ruta_web)
         actualizar_historial("<span class='mensaje-asistente'>JARVIS: Desplegando interfaz web principal.</span>")
@@ -145,18 +141,6 @@ def procesar_comando_general(texto_usuario, recognizer):
         webbrowser.open("https://www.roblox.com/home")
         actualizar_historial("<span class='mensaje-asistente'>JARVIS: Accediendo a Roblox.</span>")
 
-    elif any(w in texto_lower for w in ["minimizar", "minimiza"]):
-        pyautogui.hotkey('win', 'down')
-        actualizar_historial("<span class='mensaje-asistente'>JARVIS: Ventana minimizada.</span>")
-        
-    elif any(w in texto_lower for w in ["cerrar", "cierra", "pestaña"]):
-        pyautogui.hotkey('alt', 'f4')
-        actualizar_historial("<span class='mensaje-asistente'>JARVIS: Cerrando ventana actual.</span>")
-
-    elif any(w in texto_lower for w in ["calculadora", "calc", "calcular"]):
-        os.system("calc")
-        actualizar_historial("<span class='mensaje-asistente'>JARVIS: Módulo de cálculo abierto.</span>")
-
     elif any(w in texto_lower for w in ["traduce", "traductor"]):
         webbrowser.open("https://translate.google.com")
         actualizar_historial("<span class='mensaje-asistente'>JARVIS: Traductor de Google iniciado.</span>")
@@ -164,7 +148,7 @@ def procesar_comando_general(texto_usuario, recognizer):
     elif any(w in texto_lower for w in ["reproducir musica web", "reproduce música", "música", "musica", "youtube"]):
         busqueda = texto_lower.replace("reproducir musica web", "").replace("reproduce en youtube", "").replace("busca en youtube", "").replace("reproduce música", "").replace("musica", "").replace("música", "").replace("youtube", "").strip()
         current_embed_url = f"https://www.youtube.com/embed?listType=search&list={busqueda}&autoplay=1" if busqueda else "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"
-        actualizar_historial(f"<span class='mensaje-asistente'>JARVIS: Sintonizando contenido multimedia.</span>")
+        actualizar_historial(f"<span class='mensaje-asistente'>JARVIS: Sintonizando '{busqueda if busqueda else 'música'}'.</span>")
 
     elif "hora" in texto_lower:
         decir_hora_actual()
@@ -175,9 +159,9 @@ def procesar_comando_general(texto_usuario, recognizer):
 
     elif "hola" in texto_lower:
         actualizar_historial("<span class='mensaje-asistente'>JARVIS: Saludos, señor. Sistemas listos.</span>")
-    
+
     else:
-        actualizar_historial("<span class='mensaje-asistente'>JARVIS: Comando recibido y procesado.</span>")
+        actualizar_historial("<span class='mensaje-asistente'>JARVIS: Comando libre recibido y procesado.</span>")
 
     return True
 
@@ -217,7 +201,6 @@ def iniciar_servidor_web():
 def bucle_voz():
     recognizer = sr.Recognizer()
     threading.Thread(target=iniciar_servidor_web, daemon=True).start()
-    webbrowser.open("http://localhost:8000/index.html")
     
     while True:
         if cola_comandos_web:
